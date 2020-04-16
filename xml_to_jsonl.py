@@ -14,10 +14,10 @@ def parse_xml(xmlfile):
 def write_dict(parsed_file):
     """To transfer the information to a dictionary."""
     # let's write a dictionary
-    working_dict = {}
     for entry in parsed_file:
-        for next_level in entry:
-            print(next_level.tag)
+        # for next_level in entry:
+        if entry.tag == '{http://www.w3.org/2005/Atom}entry': 
+            print(entry[1].text)
 
 
 write_dict(parse_xml('ebooks.xml'))
