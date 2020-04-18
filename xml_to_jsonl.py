@@ -25,28 +25,36 @@ def write_dict(parsed_file):
 
             for entry_child in entry:
 
-                # IF for author element.
+                # IF for author element. Currently returns correct but writes "\n\t\t\t"
                 if entry_child.tag == 'author':
                     author = {}
                     for author_child in entry_child:
                         author[author_child.tag] = author_child.text
-                    book['author'] = author
 
+
+                # IFs to handle tags as lists instead of strings.
                 if entry_child.tag == 'source':
                     source.append(entry_child.text)
 
-                if entry_child.tag == 'content':
-                    for content_child in entry_child:
-                        content.append(content_child.text)
+                #if entry_child.tag == 'content':
+                    #for content_child in entry_child:
+                        #content.append(ET.tostring(entry_child.text))
+                        #if type(entry_child.text) != 'string':
+                            #ET.tostring(entry_child.text)
+
+                # to-do tag == 'content' needs to be adjusted for text in HTML
+                # to-do tag == 'category' needs to be adjusted for containing content in tags
+                # to-do tag == 'link' needs to be adjusted for containing content in tags
 
 
                 else:
                     book[entry_child.tag] = entry_child.text
+            
             book['source'] = source
             book['content'] = content
             ebooks.append(book)
     return ebooks
 
-with jsonlines.open('converted_ebooks.jsonl', mode='w') as writer:
+with jsonlines.open('test_ebook.jsonl', mode='w') as writer:
     writer.write(write_dict(parse_xml('alt_ebooks.xml')))
-#print(write_dict(parse_xml('alt_ebooks.xml')))
+#write_dict(parse_xml('alt_ebooks.xml'))
