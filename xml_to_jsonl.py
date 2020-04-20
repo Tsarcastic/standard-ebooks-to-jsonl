@@ -20,6 +20,7 @@ def write_dict(parsed_file):
     for entry in parsed_file:
         if entry.tag == 'entry':
             book = {}
+            author = {}
             source = []
             content = []
             categories = []
@@ -27,37 +28,35 @@ def write_dict(parsed_file):
 
             for entry_child in entry:
 
-                # IF for author element. Currently returns correct but writes "\n\t\t\t"
+                # IF for author element. 
                 if entry_child.tag == 'author':
-                    author = {}
                     for author_child in entry_child:
-                        author[author_child.tag] = author_child.text
+                        author[author_child.tag] = str(author_child.text)
 
                 # Processes 'source' tags as a list instead of a string.
                 if entry_child.tag == 'source':
                     source.append(entry_child.text)
 
-                # Converts the XML elements into strings and appends them to list of content
+                # Converts XML elements into strings and appends them to list of content
                 if entry_child.tag == 'content':
                     for content_child in entry_child:
                         content.append(ET.tostring(content_child).decode('utf-8'))
 
-                # Pulls the category terms from the tags and appends them to list of categories
+                # Pulls category terms from the tags and appends them to list of categories
                 if entry_child.tag == 'category':
                     categories.append(entry_child.get('term'))
 
+                # Special rules for links
                 if entry_child.tag == 'link':
                     link = {}
                     for item in entry_child.attrib.items():
                         link[str(item)] = entry_child.get(item)
                     links.append(link)
 
-
-
-
                 else:
                     book[entry_child.tag] = entry_child.text
-            
+
+            book['author'] = author
             book['source'] = source
             book['content'] = content
             book['categories'] = categories
@@ -67,4 +66,3 @@ def write_dict(parsed_file):
 
 with jsonlines.open('test_ebook.jsonl', mode='w') as writer:
     writer.write(write_dict(parse_xml('one_book.xml')))
-#write_dict(parse_xml('alt_ebooks.xml'))
