@@ -32,17 +32,15 @@ def write_dict(parsed_file):
                         author[author_child.tag] = author_child.text
 
 
-                # IFs to handle tags as lists instead of strings.
+                # IFs to handle tags as a list instead of strings.
                 if entry_child.tag == 'source':
                     source.append(entry_child.text)
 
-                #if entry_child.tag == 'content':
-                    #for content_child in entry_child:
-                        #content.append(ET.tostring(entry_child.text))
-                        #if type(entry_child.text) != 'string':
-                            #ET.tostring(entry_child.text)
+                # Converts the XML elements into strings and appends them as content
+                if entry_child.tag == 'content':
+                    for content_child in entry_child:
+                        content.append(ET.tostring(content_child).decode('utf-8'))
 
-                # to-do tag == 'content' needs to be adjusted for text in HTML
                 # to-do tag == 'category' needs to be adjusted for containing content in tags
                 # to-do tag == 'link' needs to be adjusted for containing content in tags
 
@@ -56,5 +54,5 @@ def write_dict(parsed_file):
     return ebooks
 
 with jsonlines.open('test_ebook.jsonl', mode='w') as writer:
-    writer.write(write_dict(parse_xml('alt_ebooks.xml')))
+    writer.write(write_dict(parse_xml('one_book.xml')))
 #write_dict(parse_xml('alt_ebooks.xml'))
