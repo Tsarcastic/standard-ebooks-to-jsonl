@@ -22,6 +22,7 @@ def write_dict(parsed_file):
             book = {}
             source = []
             content = []
+            categories = []
 
             for entry_child in entry:
 
@@ -32,17 +33,21 @@ def write_dict(parsed_file):
                         author[author_child.tag] = author_child.text
 
 
-                # IFs to handle tags as a list instead of strings.
+                # Processes 'source' tags as a list instead of a string.
                 if entry_child.tag == 'source':
                     source.append(entry_child.text)
 
-                # Converts the XML elements into strings and appends them as content
+                # Converts the XML elements into strings and appends them to content 
                 if entry_child.tag == 'content':
                     for content_child in entry_child:
                         content.append(ET.tostring(content_child).decode('utf-8'))
 
-                # to-do tag == 'category' needs to be adjusted for containing content in tags
                 # to-do tag == 'link' needs to be adjusted for containing content in tags
+                
+                # to-do tag == 'category' needs to be adjusted for containing content in tags
+                if entry_child.tag == 'category':
+                    categories.append(entry_child.get('term'))
+
 
 
                 else:
@@ -50,6 +55,7 @@ def write_dict(parsed_file):
             
             book['source'] = source
             book['content'] = content
+            book['categories'] = categories
             ebooks.append(book)
     return ebooks
 
