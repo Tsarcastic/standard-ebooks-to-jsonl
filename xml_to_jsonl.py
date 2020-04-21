@@ -64,5 +64,5 @@ def write_dict(parsed_file):
             ebooks.append(book)
     return ebooks
 
-with jsonlines.open('test_ebook.jsonl', mode='w') as writer:
-    writer.write(write_dict(parse_xml('one_book.xml')))
+with jsonlines.open('converted_books.jsonl', mode='w') as writer:
+    writer.write(write_dict(parse_xml('alt_ebooks.xml')))
