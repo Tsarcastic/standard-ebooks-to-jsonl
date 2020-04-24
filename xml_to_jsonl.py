@@ -20,7 +20,6 @@ def write_dict(parsed_file):
     for entry in parsed_file:
         if entry.tag == 'entry':
             book = {}
-            author = {}
             source = []
             content = []
             categories = []
@@ -28,26 +27,30 @@ def write_dict(parsed_file):
 
             for entry_child in entry:
 
-                # IF for author element. 
+                # IF for author element.
                 if entry_child.tag == 'author':
                     for author_child in entry_child:
-                        author[author_child.tag] = str(author_child.text)
+                        print(author_child.tag)
+                        if author_child.tag == 'name':
+                            book['author'] = str(author_child.text)
+                        if author_child.tag == 'uri':
+                            book['uri'] = str(author_child.text)
 
                 # Processes 'source' tags as a list instead of a string.
-                if entry_child.tag == 'source':
+                elif entry_child.tag == 'source':
                     source.append(entry_child.text)
 
                 # Converts XML elements into strings and appends them to list of content
-                if entry_child.tag == 'content':
+                elif entry_child.tag == 'content':
                     for content_child in entry_child:
                         content.append(ET.tostring(content_child).decode('utf-8'))
 
                 # Pulls category terms from the tags and appends them to list of categories
-                if entry_child.tag == 'category':
+                elif entry_child.tag == 'category':
                     categories.append(entry_child.get('term'))
 
                 # Special rules for links
-                if entry_child.tag == 'link':
+                elif entry_child.tag == 'link':
                     link = {}
                     for item in entry_child.attrib.items():
                         link[str(item)] = entry_child.get(item)
@@ -56,7 +59,6 @@ def write_dict(parsed_file):
                 else:
                     book[entry_child.tag] = entry_child.text
 
-            book['author'] = author
             book['source'] = source
             book['content'] = content
             book['categories'] = categories
@@ -64,5 +66,5 @@ def write_dict(parsed_file):
             ebooks.append(book)
     return ebooks
 
-with jsonlines.open('converted_books.jsonl', mode='w') as writer:
-    writer.write(write_dict(parse_xml('alt_ebooks.xml')))
+with jsonlines.open('test.jsonl', mode='w') as writer:
+    writer.write(write_dict(parse_xml('one_book.xml')))
