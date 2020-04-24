@@ -11,7 +11,7 @@ def parse_xml(xmlfile):
     return root
 
 
-def write_dict(parsed_file):
+def translate_ebooks(parsed_file):
     """To transfer the information to a dictionary."""
     # Iterate through the parsed file
     ebooks = []
@@ -63,8 +63,9 @@ def write_dict(parsed_file):
             book['source'] = source
             book['categories'] = categories
             book['links'] = links
-            ebooks.append(book)
-    return ebooks
+            yield book
+
 
 with jsonlines.open('test.jsonl', mode='w') as writer:
-    writer.write(write_dict(parse_xml('one_book.xml')))
+    for item in translate_ebooks(parse_xml('one_book.xml')):
+        writer.write(item)
