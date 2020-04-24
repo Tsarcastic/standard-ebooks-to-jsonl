@@ -21,16 +21,15 @@ def write_dict(parsed_file):
         if entry.tag == 'entry':
             book = {}
             source = []
-            content = []
             categories = []
             links = []
+            prelink = "https://standardebooks.org"
 
             for entry_child in entry:
 
                 # IF for author element.
                 if entry_child.tag == 'author':
                     for author_child in entry_child:
-                        print(author_child.tag)
                         if author_child.tag == 'name':
                             book['author'] = str(author_child.text)
                         if author_child.tag == 'uri':
@@ -42,8 +41,10 @@ def write_dict(parsed_file):
 
                 # Converts XML elements into strings and appends them to list of content
                 elif entry_child.tag == 'content':
+                    content_string = ''
                     for content_child in entry_child:
-                        content.append(ET.tostring(content_child).decode('utf-8'))
+                        content_string += ET.tostring(content_child).decode('utf-8')
+                        book['content'] = content_string
 
                 # Pulls category terms from the tags and appends them to list of categories
                 elif entry_child.tag == 'category':
@@ -51,16 +52,15 @@ def write_dict(parsed_file):
 
                 # Special rules for links
                 elif entry_child.tag == 'link':
-                    link = {}
-                    for item in entry_child.attrib.items():
-                        link[str(item)] = entry_child.get(item)
-                    links.append(link)
+                    links.append(prelink + entry_child.get('href'))
+                
+                elif entry_child.tag == 'publisher' or entry_child.tag =='rights':
+                    pass
 
                 else:
                     book[entry_child.tag] = entry_child.text
 
             book['source'] = source
-            book['content'] = content
             book['categories'] = categories
             book['links'] = links
             ebooks.append(book)
