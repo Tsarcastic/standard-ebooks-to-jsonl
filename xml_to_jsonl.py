@@ -11,63 +11,62 @@ def parse_xml(xmlfile):
     return root
 
 
-def translate_ebooks(parsed_file):
+def convert_ebooks(parsed_file):
     """To transfer the information to a dictionary."""
-    # Iterate through the parsed file
-    ebooks = []
-
-    # Iterate through the primary element list, looking for books.
+    # Iterate through the primary element list, ignoring non-book items.
     for entry in parsed_file:
+
         if entry.tag != 'entry':
             pass
 
-        book = {}
-        source = []
-        categories = []
-        links = []
-        prelink = "https://standardebooks.org"
-
-        for entry_child in entry:
-
-            # IF for author element.
-            if entry_child.tag == 'author':
-                for author_child in entry_child:
-                    if author_child.tag == 'name':
-                        book['author'] = str(author_child.text)
-                    if author_child.tag == 'uri':
-                        book['uri'] = str(author_child.text)
-
-            # Processes 'source' tags as a list instead of a string.
-            elif entry_child.tag == 'source':
-                source.append(entry_child.text)
-
-            # Converts XML elements into strings and appends them to list of content
-            elif entry_child.tag == 'content':
-                content_string = ''
-                for content_child in entry_child:
-                    content_string += ET.tostring(content_child).decode('utf-8')
-                    book['content'] = content_string
-
-            # Pulls category terms from the tags and appends them to list of categories
-            elif entry_child.tag == 'category':
-                categories.append(entry_child.get('term'))
-
-            # Special rules for links
-            elif entry_child.tag == 'link':
-                links.append(prelink + entry_child.get('href'))
+        else:
+            book = {}
+            source = []
+            categories = []
+            links = []
+            prelink = "https://standardebooks.org"
             
-            elif entry_child.tag == 'publisher' or entry_child.tag =='rights':
-                pass
+            for entry_child in entry:
 
-            else:
-                book[entry_child.tag] = entry_child.text
+                # IF for author element.
+                if entry_child.tag == 'author':
+                    for author_child in entry_child:
+                        if author_child.tag == 'name':
+                            book['author'] = str(author_child.text)
+                        if author_child.tag == 'uri':
+                            book['uri'] = str(author_child.text)
 
-        book['source'] = source
-        book['categories'] = categories
-        book['links'] = links
-        yield book
+                # Processes 'source' tags as a list instead of a string.
+                elif entry_child.tag == 'source':
+                    source.append(entry_child.text)
+
+                # Converts XML elements into strings and appends them to list of content
+                elif entry_child.tag == 'content':
+                    content_string = ''
+                    for content_child in entry_child:
+                        content_string += ET.tostring(content_child).decode('utf-8')
+                        book['content'] = content_string
+
+                # Pulls category terms from the tags and appends them to list of categories
+                elif entry_child.tag == 'category':
+                    categories.append(entry_child.get('term'))
+
+                # Special rules for links
+                elif entry_child.tag == 'link':
+                    links.append(prelink + entry_child.get('href'))
+                
+                elif entry_child.tag == 'publisher' or entry_child.tag == 'rights':
+                    pass
+
+                else:
+                    book[entry_child.tag] = entry_child.text
+
+            book['source'] = source
+            book['categories'] = categories
+            book['links'] = links
+            yield book
 
 
 with jsonlines.open('converted_books.jsonl', mode='w') as writer:
-    for item in translate_ebooks(parse_xml('ebooks.xml')):
+    for item in convert_ebooks(parse_xml('ebooks.xml')):
         writer.write(item)
