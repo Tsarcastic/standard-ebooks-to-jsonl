@@ -18,54 +18,56 @@ def translate_ebooks(parsed_file):
 
     # Iterate through the primary element list, looking for books.
     for entry in parsed_file:
-        if entry.tag == 'entry':
-            book = {}
-            source = []
-            categories = []
-            links = []
-            prelink = "https://standardebooks.org"
+        if entry.tag != 'entry':
+            pass
 
-            for entry_child in entry:
+        book = {}
+        source = []
+        categories = []
+        links = []
+        prelink = "https://standardebooks.org"
 
-                # IF for author element.
-                if entry_child.tag == 'author':
-                    for author_child in entry_child:
-                        if author_child.tag == 'name':
-                            book['author'] = str(author_child.text)
-                        if author_child.tag == 'uri':
-                            book['uri'] = str(author_child.text)
+        for entry_child in entry:
 
-                # Processes 'source' tags as a list instead of a string.
-                elif entry_child.tag == 'source':
-                    source.append(entry_child.text)
+            # IF for author element.
+            if entry_child.tag == 'author':
+                for author_child in entry_child:
+                    if author_child.tag == 'name':
+                        book['author'] = str(author_child.text)
+                    if author_child.tag == 'uri':
+                        book['uri'] = str(author_child.text)
 
-                # Converts XML elements into strings and appends them to list of content
-                elif entry_child.tag == 'content':
-                    content_string = ''
-                    for content_child in entry_child:
-                        content_string += ET.tostring(content_child).decode('utf-8')
-                        book['content'] = content_string
+            # Processes 'source' tags as a list instead of a string.
+            elif entry_child.tag == 'source':
+                source.append(entry_child.text)
 
-                # Pulls category terms from the tags and appends them to list of categories
-                elif entry_child.tag == 'category':
-                    categories.append(entry_child.get('term'))
+            # Converts XML elements into strings and appends them to list of content
+            elif entry_child.tag == 'content':
+                content_string = ''
+                for content_child in entry_child:
+                    content_string += ET.tostring(content_child).decode('utf-8')
+                    book['content'] = content_string
 
-                # Special rules for links
-                elif entry_child.tag == 'link':
-                    links.append(prelink + entry_child.get('href'))
-                
-                elif entry_child.tag == 'publisher' or entry_child.tag =='rights':
-                    pass
+            # Pulls category terms from the tags and appends them to list of categories
+            elif entry_child.tag == 'category':
+                categories.append(entry_child.get('term'))
 
-                else:
-                    book[entry_child.tag] = entry_child.text
+            # Special rules for links
+            elif entry_child.tag == 'link':
+                links.append(prelink + entry_child.get('href'))
+            
+            elif entry_child.tag == 'publisher' or entry_child.tag =='rights':
+                pass
 
-            book['source'] = source
-            book['categories'] = categories
-            book['links'] = links
-            yield book
+            else:
+                book[entry_child.tag] = entry_child.text
+
+        book['source'] = source
+        book['categories'] = categories
+        book['links'] = links
+        yield book
 
 
-with jsonlines.open('test.jsonl', mode='w') as writer:
-    for item in translate_ebooks(parse_xml('one_book.xml')):
+with jsonlines.open('converted_books.jsonl', mode='w') as writer:
+    for item in translate_ebooks(parse_xml('ebooks.xml')):
         writer.write(item)
